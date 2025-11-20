@@ -1,120 +1,173 @@
-# MCP-Langgraph Integration Tutorial
+# EnBW Playwright Test Generator
 
-This tutorial demonstrates how to integrate Model Context Protocol (MCP) servers with Langgraph agents to create powerful, tool-enabled AI applications. The project showcases a data science assistant named Scout that can help users manage their data science projects using various MCP-powered tools.
+An interactive AI agent that automatically generates Playwright test code from natural language descriptions. Simply describe what you want to test, and the agent generates ready-to-run test code using GPT-4.
 
-## Overview
+## What It Does
 
-The project implements a conversational AI agent that:
-- Uses GPT-4.1 as the base model
-- Integrates with multiple MCP servers for different functionalities
-- Uses Langgraph for orchestrating the conversation flow
-- Provides a streaming interface for real-time responses
+- **AI-Powered Test Generation**: Describe a test scenario in plain language (e.g., "test clicking the tariff button and filling the postal code")
+- **Interactive Chat Interface**: Simple CLI where you chat with the agent about tests you want to generate
+- **Playwright Integration**: Generates valid Playwright test code that you can immediately run
+- **OpenAI GPT-4**: Uses advanced language model to understand intent and generate high-quality test code
+- **Bonus Features**: Includes web scraper for EnBW.com and Datev CSV exporter for data analysis
 
-## Prerequisites
+## Installation
 
-- Python 3.13+
-- Node.js (for filesystem MCP server)
-- Docker (for GitHub MCP server)
-- UV package manager
-- OpenAI API key
+1. **Install dependencies** (uses `uv` package manager):
+   ```bash
+   uv sync
+   ```
+
+2. **Set up environment** - Create a `.env` file with your OpenAI API key:
+   ```bash
+   echo "OPENAPI_KEY=your-openai-api-key-here" > .env
+   ```
+   Get your API key from [OpenAI platform](https://platform.openai.com/api-keys)
+
+## Quick Start
+
+**Run the interactive test generator:**
+```bash
+uv run python scout/client_test_generator.py
+```
+
+Then interact with the agent:
+```
+You: test clicking the tariff button on the EnBW website
+Agent: [Generates Playwright test code for that scenario]
+
+You: add a step to fill in postal code 70173
+Agent: [Generates updated test code with that step]
+
+You: save
+Agent: [Saves generated test to tests/generated_test.py]
+```
+
+## How to Use
+
+### 1. Start the Agent
+```bash
+uv run python scout/client_test_generator.py
+```
+
+### 2. Describe Your Test
+Type natural language descriptions of what you want to test:
+```
+test visiting the EnBW website and navigating to the tariff page
+test clicking the compare tariffs button and checking the result
+test scrolling through the tariff details section
+```
+
+### 3. Generate Code
+The agent generates complete Playwright test code that you can:
+- View in the chat
+- Copy and paste
+- Modify as needed
+- Save to a file (type `save`)
+
+### 4. Run Tests
+Once you have generated test code:
+```bash
+# Install pytest if needed
+pip install pytest
+
+# Run the generated test
+pytest tests/generated_test.py -v
+```
+
+## Bonus: Web Scraper
+
+**Scrape and analyze EnBW.com content:**
+```bash
+uv run python scout/client.py
+```
+
+This will:
+1. Scrape key pages from https://www.enbw.com
+2. Analyze content with GPT-4
+3. Export structured data to CSV (Datev format)
+
+Output file: `enbw_export_YYYYMMDD_HHMMSS.csv`
+
+## Troubleshooting
+
+### "No module named 'scout'"
+**Solution**: Always run from project root directory:
+```bash
+# ✅ Correct
+cd /Users/andreas/Documents/EnBW/Praxisphasen/3.\ Praxisphase/mcp-intro
+uv run python scout/client_test_generator.py
+
+# ❌ Wrong
+cd scout
+python client_test_generator.py
+```
+
+### "OPENAPI_KEY not found"
+**Solution**: Verify `.env` file exists in project root with correct key:
+```bash
+cat .env  # Should show: OPENAPI_KEY=sk-proj-...
+```
+
+### Agent returns no output
+**Solution**: 
+1. Check API key is valid: Visit https://platform.openai.com/api-keys
+2. Verify .env file: `cat .env | grep OPENAPI_KEY`
+3. Check internet connection
+4. Try simpler prompt: instead of long description, use shorter request
+
+### Import warnings in IDE
+**Note**: IDE may show red squiggles for imports even though they work fine. This is normal with uv-managed environments. Everything works correctly at runtime.
 
 ## Project Structure
 
 ```
-scout/
-├── graph.py           # Langgraph agent implementation
-├── client.py          # MCP client and streaming interface
-├── client_utils.py    # Utility functions
-├── main.py           # Entry point
-└── my_mcp/           # MCP server configurations
-    ├── config.py     # Config loading and env var resolution
-    ├── mcp_config.json # MCP server definitions
-    └── local_servers/ # Custom MCP server implementations
+mcp-intro/
+├── README.md                          # This file
+├── pyproject.toml                     # Project configuration & dependencies
+├── .env                              # OpenAI API key (not in git)
+├── uv.lock                           # Dependency lock file
+│
+├── scout/                            # Main package
+│   ├── client_test_generator.py      # Interactive test generation CLI
+│   ├── client.py                     # Web scraper + CSV exporter
+│   │
+│   ├── agents/                       # AI agent logic
+│   │   ├── playwright_test_generator.py      # Core LangGraph agent
+│   │   └── test_generator_mcp_server.py      # MCP server wrapper
+│   │
+│   ├── my_mcp/                       # MCP server configurations
+│   │   ├── config.py
+│   │   ├── mcp_config.json
+│   │   └── local_servers/
+│   │       ├── enbw.py              # EnBW web scraper server
+│   │       └── weather.py
+│   │
+│   └── tests/                        # Generated test files will go here
+│       └── __init__.py
 ```
 
-## Setup
+## Technology Stack
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd mcp-intro
-```
+- **Python 3.13+** - Runtime
+- **LangGraph** - Agentic orchestration framework
+- **LangChain** - LLM integration framework
+- **OpenAI API** - GPT-4 language model
+- **Playwright** - Browser automation
+- **MCP (Model Context Protocol)** - Server framework for tools
+- **BeautifulSoup4** - HTML parsing for scraping
+- **httpx** - HTTP client for web requests
 
-2. Create and activate a virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
+## Next Steps
 
-3. Install dependencies:
-```bash
-uv pip install -e .
-```
+1. Make sure `.env` has valid `OPENAPI_KEY`
+2. Run: `uv run python scout/client_test_generator.py`
+3. Describe a test you want in plain English
+4. Watch the agent generate Playwright code
+5. Save the code and run it with pytest
 
-4. Set up environment variables:
-Create a `.env` file with:
-```
-OPENAI_API_KEY=your_openai_api_key
-MCP_FILESYSTEM_DIR=/path/to/projects/directory
-MCP_GITHUB_PAT=your_github_personal_access_token
-```
+## Questions?
 
-## MCP Servers
-
-This project integrates with four MCP servers:
-
-1. **Dataflow Server**: Custom implementation for data loading and querying
-2. **Filesystem Server**: Uses `@modelcontextprotocol/server-filesystem` for file operations
-3. **Git Server**: Uses `mcp-server-git` for local git operations
-4. **GitHub Server**: Uses the official GitHub MCP server for GitHub operations
-
-## Usage
-
-1. Start the application:
-```bash
-python -m scout.client
-```
-
-2. Interact with Scout by typing your questions or requests. For example:
-```
-USER: Can you help me set up a new data science project?
-```
-
-3. Scout will use its tools to:
-- Create and manage project directories
-- Handle data loading and transformation
-- Manage version control
-- Interact with GitHub repositories
-
-4. Type 'quit' or 'exit' to end the session.
-
-## How It Works
-
-1. The `graph.py` file defines the Langgraph agent structure:
-- Sets up the system prompt and agent state
-- Configures the LLM (GPT-4)
-- Defines the conversation flow graph
-
-2. The `client.py` file:
-- Initializes the MCP client with multiple servers
-- Handles streaming responses
-- Manages the interactive session
-
-3. MCP servers provide tools for:
-- File system operations
-- Data manipulation
-- Git operations
-- GitHub interactions
-
-## Extending the Project
-
-You can extend this project by:
-
-1. Adding new MCP servers in `my_mcp/local_servers/`
-2. Modifying the system prompt in `graph.py`
-3. Adding new tools to the agent
-4. Customizing the conversation flow
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Common issues are covered in the **Troubleshooting** section above. If you encounter something else, check:
+- `.env` file exists and contains valid API key
+- Running from project root directory
+- Dependencies installed: `uv sync`
