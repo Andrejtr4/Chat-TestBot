@@ -27,7 +27,7 @@ An interactive AI agent that automatically generates Playwright test code from n
 
 **Run the interactive test generator:**
 ```bash
-uv run python scout/client_test_generator.py
+uv run main.py
 ```
 
 Then interact with the agent:
@@ -46,7 +46,7 @@ Agent: [Saves generated test to tests/generated_test.py]
 
 ### 1. Start the Agent
 ```bash
-uv run python scout/client_test_generator.py
+uv run main.py
 ```
 
 ### 2. Describe Your Test
