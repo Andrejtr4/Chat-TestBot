@@ -14,10 +14,11 @@ An interactive AI agent that automatically generates Playwright test code from n
 
 1. **Install dependencies** (uses `uv` package manager):
    ```bash
+   powershell -c "irm https://astral.sh/uv/install.ps1 | more"
    uv sync
    ```
 
-2. **Set up environment** - Create a `.env` file with your OpenAI API key:
+3. **Set up environment** - Create a `.env` file with your OpenAI API key:
    ```bash
    echo "OPENAPI_KEY=your-openai-api-key-here" > .env
    ```
