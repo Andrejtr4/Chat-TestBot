@@ -12,7 +12,7 @@ An interactive AI agent that automatically generates Playwright test code from n
 
 ## Installation
 
-1. **Install dependencies** (uses `uv` package manager):
+1. **Install dependencies** (uses `uv` package manager): https://docs.astral.sh/uv/getting-started/installation/#next-steps
    ```bash
    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
    uv sync
